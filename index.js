@@ -3,14 +3,20 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const authRouter = require("./routes/auth");
+const { errorHandler, notFound } = require("./middlewares");
+const userRouter = require("./routes/user");
 
 const app = express();
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8000;
 dotenv.config();
 
 app.use(express.json());
-app.use("/auth", authRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+
+app.use(errorHandler);
+app.use(notFound);
 
 const startServer = async () => {
   try {

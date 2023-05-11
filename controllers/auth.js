@@ -1,38 +1,46 @@
+const throwCustomError = require("../utitls/customError");
 const User = require("../models/User");
 
-const register = async (req, res) => {
+const registerAdmin = async (req, res, next) => {
   try {
-    console.log(req.body);
+    const user = await User.create({ ...req.body, isAdmin: true });
+    const token = user.createJWT();
+    res.status(201).json({ token });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const register = async (req, res, next) => {
+  try {
     const user = await User.create({ ...req.body });
     const token = user.createJWT();
     res.status(201).json({ token });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "User failed to create" });
+    next(err);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user) {
-      throw new Error("Username not found");
+      throwCustomError(404, "Username dosen't exists");
     }
     const pwResult = await user.passwordMatch(password);
     if (!pwResult) {
-      throw new Error("Incorrect password");
+      throwCustomError(400, "Incorrect Password");
     }
     const token = user.createJWT();
     res.status(200).json({ token });
   } catch (err) {
-    console.log(err);
-    const msg = err.message || "Login failed";
-    res.status(500).json({ msg });
+    next(err);
   }
 };
 
 module.exports = {
   register,
   login,
+  registerAdmin,
 };
