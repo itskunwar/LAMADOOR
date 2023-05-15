@@ -1,8 +1,10 @@
 const throwCustomError = require("../utitls/customError");
 const User = require("../models/User");
+const genPass = require("../utitls/genPass");
 
 const registerAdmin = async (req, res, next) => {
   try {
+    req.body.password = await genPass(req.body.password);
     const user = await User.create({ ...req.body, isAdmin: true });
     const token = user.createJWT();
     res.status(201).json({ token });
@@ -13,6 +15,7 @@ const registerAdmin = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   try {
+    req.body.password = await genPass(req.body.password);
     const user = await User.create({ ...req.body });
     const token = user.createJWT();
     res.status(201).json({ token });

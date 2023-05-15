@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const authRouter = require("./routes/auth");
 const { errorHandler, notFound } = require("./middlewares");
 const userRouter = require("./routes/user");
+const productRouter = require("./routes/product");
 
 const app = express();
 
@@ -14,6 +15,7 @@ dotenv.config();
 app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/product", productRouter);
 
 app.use(errorHandler);
 app.use(notFound);

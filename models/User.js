@@ -10,7 +10,7 @@ const UserSchema = mongoose.Schema(
     username: {
       type: String,
       required: [true, "username is required!"],
-      unique: [true, "Username already exists!"],
+      unique: true,
       minlength: 3,
       maxlength: 10,
     },
@@ -36,11 +36,6 @@ const UserSchema = mongoose.Schema(
     timestamps: true,
   }
 );
-
-UserSchema.pre("save", async function () {
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
 
 UserSchema.methods.createJWT = function () {
   return jwt.sign(

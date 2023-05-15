@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const genPass = require("../utitls/genPass");
+const throwCustomError = require("../utitls/customError");
 
 const getUsers = async (req, res, next) => {
   try {
@@ -25,8 +27,7 @@ const updateUser = async (req, res, next) => {
     const { id } = req.params;
 
     if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
+      req.body.password = await genPass(req.body.password);
     }
 
     const user = await User.findByIdAndUpdate(
@@ -40,4 +41,18 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUser, updateUser };
+const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (user.isAdmin) {
+      throwCustomError(401, "Admin user can't be deleted");
+    }
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: "User deleted" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUsers, getUser, updateUser, deleteUser };
